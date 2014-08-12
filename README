@@ -1,0 +1,16 @@
+These scripts are used to generate files that can be read in by POP for PT and
+S restoring. There are four namelist variables for these file names:
+
+pt_interior_restore_filename = [output of gen_pt_restoring_params.ncl]
+pt_interior_filename = [output of gen_pt_dataset.ncl]
+s_interior_restore_filename = [output of gen_s_restoring_params.ncl]
+s_interior_filename = [output of gen_s_dataset.ncl]
+
+These output files are all resolution-dependent; the four scripts all contain a
+variable named luse_g16 that should be set to True if you are using gx1v6 and
+set to False if you are using gx3v7.
+
+Note that every *_filename variable has a corresponding *_file_fmt that should
+be set to 'nc'. Further, we want both pt_interior_data_type and
+s_interior_data_type to be equal to "monthly". Lastly, we want both
+pt_interior_variable_restore and s_interior_variable_restore to both be .true.
