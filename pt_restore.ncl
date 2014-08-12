@@ -1,20 +1,19 @@
 begin
 
+  ; User-defined Parameters
+  ; luse_g16 = False => use g37 grid
+  luse_g16 = False
+  min_lon =   0.d
+  max_lon = 360.d
+  min_lat =  90.d
+  max_lat = -90.d
+
   ; Constants
   pi_dble   = acos(0.d)*2.d
   qm        = str_get_dq()
   curdate   = systemfunc("date "+qm+"+%y-%m-%d %H:%M:%S"+qm)
   longdate  = systemfunc("date -d "+qm+curdate+qm)
   shortdate = systemfunc("date -d "+qm+curdate+qm+" +%y%m%d-%H%M%S")
-
-  ; User-defined Parameters
-  min_lon =   0.d
-  max_lon = 360.d
-  min_lat =  90.d
-  max_lat = -90.d
-
-  ; False => use g37 grid
-  luse_g16 = True
 
   gx1v6_gridfile = "/glade/p/cesmdata/cseg/mapping/grids/gx1v6_090205.nc"
   gx3v7_gridfile = "/glade/p/cesmdata/cseg/mapping/grids/gx3v7_120309.nc"
