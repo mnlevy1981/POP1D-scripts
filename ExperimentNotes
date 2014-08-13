@@ -1,0 +1,28 @@
+All experiments
+----
+T62_g37
+C1D compset
+* Change env_run.xml to run for 1 year
+* Change $CASE.run to request 30 minutes of premium queue
+
+C1D.beta12.oob
+----
+001: no namelist changes
+
+C1D.beta12.pt_restore [SourceMod to read TEMPERATURE01 instead of TEMPERATURE 1]
+----
+001: set pt_interior_restore to true, but don't set pt_interior_data_type [bfb with oob run because there is no forcing]
+002: set pt_interior_restore to true, set pt_interior_data_type to monthly
+003: same as 002, but without "k>1" condition
+
+C1D.beta12.pt_s_restore [SourceMod to read TEMPERATURE01 instead of TEMPERATURE 1 and SALINITY01 instead of SALINITY  1]
+----
+001: set pt_interior_restore and s_interior_restore to true, set pt_interior_data_type and s_interior_data_type to monthly
+002: same as 001 but without "k>1" condition
+003: same as 002 but without CVMix
+004: same as 002 but single thread
+
+C1D.beta12.pt_s_restore [SourceMod to read SALINITY01 instead of SALINITY  1]
+----
+001: set s_interior_restore to true, set s_interior_data_type to monthly
+

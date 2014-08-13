@@ -20,10 +20,10 @@ begin
 
   if (luse_g16) then
     fin = addfile(gx1v6_gridfile,"r")
-    outfile = "gx1v6_s_restore_"+shortdate+".nc"
+    outfile = "param_sets/gx1v6_s_restore_"+shortdate+".nc"
   else
     fin = addfile(gx3v7_gridfile,"r")
-    outfile = "gx3v7_s_restore_"+shortdate+".nc"
+    outfile = "param_sets/gx3v7_s_restore_"+shortdate+".nc"
   end if
 
   ; Compute Parameters
