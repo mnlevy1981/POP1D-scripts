@@ -13,14 +13,20 @@ begin
 
   ; Box(es) to turn mask on in
   min_lon = (/281.d, 300.d,   0.d/)
-  max_lon = (/345.d, 360.d,  20.d/)
+  max_lon = (/343.d, 360.d,  20.d/)
   min_lat = (/ 9.1d, -15.d, -15.d/)
   max_lat = (/ 50.d,  9.1d,   9.d/)
   ; Transition region(s)
   north_buf = (/ 5.d, 0.d, 0.d/)
-  east_buf  = (/10.d, 0.d, 0.d/)
+  east_buf  = (/15.d, 0.d, 0.d/)
   south_buf = (/ 0.d, 5.d, 5.d/)
-  west_buf  = (/15.d, 0.d, 0.d/)
+  west_buf  = (/10.d, 0.d, 0.d/)
+  ne_buf = north_buf*east_buf.ne.0
+  nw_buf = north_buf*west_buf.ne.0
+  sw_buf = south_buf*west_buf.ne.0
+  se_buf = south_buf*east_buf.ne.0
+  ; Nothing in Hudson Bay
+  nw_buf(0) = False
   
   num_blocks = dimsizes(min_lon)
   if (any((/dimsizes(max_lon), dimsizes(min_lat), dimsizes(max_lat)/).ne.num_blocks)) then
@@ -87,12 +93,12 @@ begin
     end if
     ; East
     if (east_buf(i).gt.0.d) then
-      transition = ind((lons.ge.min_lon(i)-east_buf(i)).and. \
-                       (lons.lt.min_lon(i)).and.             \
+      transition = ind((lons.le.max_lon(i)+east_buf(i)).and. \
+                       (lons.gt.max_lon(i)).and.             \
                        (lats.ge.min_lat(i)).and.             \
                        (lats.le.max_lat(i)))
       if (.not.any(ismissing(transition))) then
-        tmp = dble2flt(1.d - (min_lon(i) - lons(transition))/east_buf(i))
+        tmp = dble2flt(1.d - (lons(transition) - max_lon(i))/east_buf(i))
         alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
         delete(tmp)
       end if
@@ -113,12 +119,69 @@ begin
     end if
     ; West
     if (west_buf(i).gt.0.d) then
-      transition = ind((lons.le.max_lon(i)+west_buf(i)).and. \
-                       (lons.gt.max_lon(i)).and.             \
+      transition = ind((lons.ge.min_lon(i)-west_buf(i)).and. \
+                       (lons.lt.min_lon(i)).and.             \
                        (lats.ge.min_lat(i)).and.             \
                        (lats.le.max_lat(i)))
       if (.not.any(ismissing(transition))) then
-        tmp = dble2flt(1.d - (lons(transition) - max_lon(i))/west_buf(i))
+        tmp = dble2flt(1.d - (min_lon(i) - lons(transition))/west_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+
+    ; NW
+    if (nw_buf(i)) then
+      transition = ind((lons.ge.min_lon(i)-west_buf(i)).and. \
+                       (lons.lt.min_lon(i)).and.             \
+                       (lats.le.max_lat(i)+north_buf(i)).and. \
+                       (lats.gt.max_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (min_lon(i) - lons(transition))/west_buf(i)) * \
+              dble2flt(1.d - (lats(transition) - max_lat(i))/north_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; NE
+    if (ne_buf(i)) then
+      transition = ind((lons.le.max_lon(i)+east_buf(i)).and. \
+                       (lons.gt.max_lon(i)).and.             \
+                       (lats.le.max_lat(i)+north_buf(i)).and. \
+                       (lats.gt.max_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (lons(transition) - max_lon(i))/east_buf(i)) * \
+              dble2flt(1.d - (lats(transition) - max_lat(i))/north_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; SE
+    if (se_buf(i)) then
+      transition = ind((lons.le.max_lon(i)+east_buf(i)).and. \
+                       (lons.gt.max_lon(i)).and.             \
+                       (lats.ge.min_lat(i)-south_buf(i)).and. \
+                       (lats.lt.min_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (lons(transition) - max_lon(i))/east_buf(i)) * \
+              dble2flt(1.d - (min_lat(i) - lats(transition))/south_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; SW
+    if (sw_buf(i)) then
+      transition = ind((lons.ge.min_lon(i)-west_buf(i)).and. \
+                       (lons.lt.min_lon(i)).and.             \
+                       (lats.ge.min_lat(i)-south_buf(i)).and. \
+                       (lats.lt.min_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (min_lon(i) - lons(transition))/west_buf(i)) * \
+              dble2flt(1.d - (min_lat(i) - lats(transition))/south_buf(i))
         alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
         delete(tmp)
       end if

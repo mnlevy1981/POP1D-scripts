@@ -2,3 +2,4 @@ param_sets
 masks
 datasets
 *.nc
+*.swp
