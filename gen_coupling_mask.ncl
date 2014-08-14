@@ -10,10 +10,23 @@ begin
   ; User-defined Parameters
   ; luse_g16 = False => use g37 grid
   luse_g16 = False
-  min_lon = 287.d
-  max_lon = 355.d
-  min_lat = -17.d
-  max_lat =  50.d
+
+  ; Box(es) to turn mask on in
+  min_lon = (/281.d, 300.d,   0.d/)
+  max_lon = (/345.d, 360.d,  20.d/)
+  min_lat = (/ 9.1d, -15.d, -15.d/)
+  max_lat = (/ 50.d,  9.1d,   9.d/)
+  ; Transition region(s)
+  north_buf = (/ 5.d, 0.d, 0.d/)
+  east_buf  = (/10.d, 0.d, 0.d/)
+  south_buf = (/ 0.d, 5.d, 5.d/)
+  west_buf  = (/15.d, 0.d, 0.d/)
+  
+  num_blocks = dimsizes(min_lon)
+  if (any((/dimsizes(max_lon), dimsizes(min_lat), dimsizes(max_lat)/).ne.num_blocks)) then
+    print((/"ERROR: min_lon, max_lon, min_lat, and max_lat must all be same dimension"/))
+    status_exit(1)
+  end if
 
   ; Constants
   pi_dble   = acos(0.d)*2.d
@@ -31,20 +44,88 @@ begin
     fin = addfile(gx3v7_gridfile,"r")
     outfile = "masks/gx3v7_coupling_mask.nc"
   end if
+  lons = fin->grid_center_lon
+  lats = fin->grid_center_lat
+  if (lons@units.eq."radians") then
+    lons=lons*r2d
+    lons@units="degrees_east"
+  end if
+  if (lats@units.eq."radians") then
+    lats=lats*r2d
+    lats@units="degrees_north"
+  end if
 
   ; Compute Parameters
   dimSizes = fin->grid_dims
+  gridmask = fin->grid_imask
+  delete(fin)
   alpha = new(dimSizes(0)*dimSizes(1), "float")
   alpha@long_name = "Weight used when averaging POP_SST and DOCN_SST"
   alpha@coordinates = "longitude latitude"
   alpha@_FillValue = default_fillvalue("float")
   alpha = 0.
-  inbox = ind((r2d*fin->grid_center_lon.ge.min_lon).and. \
-              (r2d*fin->grid_center_lon.le.max_lon).and. \
-              (r2d*fin->grid_center_lat.ge.min_lat).and. \
-              (r2d*fin->grid_center_lat.le.max_lat))
-  alpha(inbox) = 1.
-  alpha(ind(fin->grid_imask.eq.0)) = alpha@_FillValue
+  do i=0,num_blocks-1
+    inbox = ind((lons.ge.min_lon(i)).and. \
+                (lons.le.max_lon(i)).and. \
+                (lats.ge.min_lat(i)).and. \
+                (lats.le.max_lat(i)))
+    alpha(inbox) = 1.
+    delete(inbox)
+    ; Transition Regions
+    ; North
+    if (north_buf(i).gt.0.d) then
+      transition = ind((lats.le.max_lat(i)+north_buf(i)).and. \
+                       (lats.gt.max_lat(i)).and.              \
+                       (lons.ge.min_lon(i)).and.              \
+                       (lons.le.max_lon(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (lats(transition) - max_lat(i))/north_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; East
+    if (east_buf(i).gt.0.d) then
+      transition = ind((lons.ge.min_lon(i)-east_buf(i)).and. \
+                       (lons.lt.min_lon(i)).and.             \
+                       (lats.ge.min_lat(i)).and.             \
+                       (lats.le.max_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (min_lon(i) - lons(transition))/east_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; South
+    if (south_buf(i).gt.0.d) then
+      transition = ind((lats.ge.min_lat(i)-south_buf(i)).and. \
+                       (lats.lt.min_lat(i)).and.              \
+                       (lons.ge.min_lon(i)).and.              \
+                       (lons.le.max_lon(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (min_lat(i) - lats(transition))/south_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+    ; West
+    if (west_buf(i).gt.0.d) then
+      transition = ind((lons.le.max_lon(i)+west_buf(i)).and. \
+                       (lons.gt.max_lon(i)).and.             \
+                       (lats.ge.min_lat(i)).and.             \
+                       (lats.le.max_lat(i)))
+      if (.not.any(ismissing(transition))) then
+        tmp = dble2flt(1.d - (lons(transition) - max_lon(i))/west_buf(i))
+        alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
+        delete(tmp)
+      end if
+      delete(transition)
+    end if
+  end do
+  alpha(ind(gridmask.eq.0)) = alpha@_FillValue
 
   ; Output
   system("/bin/rm -f "+outfile)
@@ -57,23 +138,22 @@ begin
   fileattdef(fout, fAtt)
 
   dimNames = (/"X", "Y"/)
-  dimSizes = fin->grid_dims
   dimUnlim = (/False, False/)
   filedimdef(fout, dimNames, dimSizes, dimUnlim)
 
-  filevardef(fout, "latitude",  typeof(fin->grid_center_lat), (/"Y", "X"/))
-  filevardef(fout, "longitude", typeof(fin->grid_center_lon), (/"Y", "X"/))
-  filevardef(fout, "alpha",     "float",                      (/"Y", "X"/))
+  filevardef(fout, "latitude",  typeof(lats), (/"Y", "X"/))
+  filevardef(fout, "longitude", typeof(lons), (/"Y", "X"/))
+  filevardef(fout, "alpha",     "float",      (/"Y", "X"/))
 
-  filevarattdef(fout, "latitude",  fin->grid_center_lat)
-  filevarattdef(fout, "longitude", fin->grid_center_lon)
+  filevarattdef(fout, "latitude",  lats)
+  filevarattdef(fout, "longitude", lons)
   filevarattdef(fout, "alpha",     alpha)
 
   setfileoption(fout, "DefineMode", False)
 
-  fout->latitude  = reshape(fin->grid_center_lat, (/dimSizes(1), dimSizes(0)/))
-  fout->longitude = reshape(fin->grid_center_lon, (/dimSizes(1), dimSizes(0)/))
-  fout->alpha     = reshape(alpha,                (/dimSizes(1), dimSizes(0)/))
+  fout->latitude  = reshape(lats,  (/dimSizes(1), dimSizes(0)/))
+  fout->longitude = reshape(lons,  (/dimSizes(1), dimSizes(0)/))
+  fout->alpha     = reshape(alpha, (/dimSizes(1), dimSizes(0)/))
 
 end
 
