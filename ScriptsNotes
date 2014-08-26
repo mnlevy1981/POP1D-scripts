@@ -12,3 +12,5 @@ region_mask_to_netCDF.ncl
 gen_coupling_mask.ncl
 * Create a file containing alpha, the weight given to POP SSTs when passing values to the coupler (with 1-alpha weight given to data SSTs)
 
+gen_sst_dataset.ncl
+* Read in Steve Yeager's PHC_TEMP dataset, separate top level of TEMP field into monthly SST fields (SST01, SST02, etc)
