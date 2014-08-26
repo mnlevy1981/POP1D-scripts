@@ -1,0 +1,14 @@
+Purpose of each script:
+
+gen_[pt|s]_dataset.ncl
+* Read in Steve Yeager's PHC_TEMP or PHC_SALT dataset, separate TEMP / SALT field into monthly fields (TEMPERATURE01, TEMPERATURE02, etc)
+
+gen_[pt|s]_restoring_params.ncl
+* Create a file containing MAX_LEVEL and RTAU, parameters used when forcing temperature / salinity to values crated in the file above.
+
+region_mask_to_netCDF.ncl
+* Convert the POP region mask file from binary to netCDF
+
+gen_coupling_mask.ncl
+* Create a file containing alpha, the weight given to POP SSTs when passing values to the coupler (with 1-alpha weight given to data SSTs)
+

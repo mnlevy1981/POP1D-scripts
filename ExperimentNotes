@@ -26,3 +26,6 @@ C1D.beta12.pt_s_restore [SourceMod to read SALINITY01 instead of SALINITY  1]
 ----
 001: set s_interior_restore to true, set s_interior_data_type to monthly
 
+C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist]
+----
+001: No change (should be identical to C1D.beta12.oob)
