@@ -29,7 +29,7 @@ C1D.beta12.pt_s_restore [SourceMod to read SALINITY01 instead of SALINITY  1]
 
 C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist; turn on coupler history and add SST_CPL, SST_ALPHA to POP history]
 ----
-001: No change (should be identical to C1D.beta12.oob)
+001: Currently has SourceMod to force sst_alpha = 0 everywhere (testing interpolation)
 
 
 ------
@@ -49,3 +49,4 @@ B1D.beta12.sst
 002: sst_use_obs = .true., files from POP1D-scripts
 003: same as 001, but f09_g16 (for looking at CAM output)
 004: same as 002, but f09_g16
+005: same as 004, but with old forcing_tools
