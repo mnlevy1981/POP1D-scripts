@@ -1,4 +1,4 @@
-All experiments
+All C-compset experiments
 ----
 T62_g37
 C1D compset
@@ -14,6 +14,7 @@ C1D.beta12.pt_restore [SourceMod to read TEMPERATURE01 instead of TEMPERATURE 1]
 001: set pt_interior_restore to true, but don't set pt_interior_data_type [bfb with oob run because there is no forcing]
 002: set pt_interior_restore to true, set pt_interior_data_type to monthly
 003: same as 002, but without "k>1" condition
+004: same as 002, but with pt_interior_interp_type set to"nearest"
 
 C1D.beta12.pt_s_restore [SourceMod to read TEMPERATURE01 instead of TEMPERATURE 1 and SALINITY01 instead of SALINITY  1]
 ----
@@ -26,6 +27,25 @@ C1D.beta12.pt_s_restore [SourceMod to read SALINITY01 instead of SALINITY  1]
 ----
 001: set s_interior_restore to true, set s_interior_data_type to monthly
 
-C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist]
+C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist; turn on coupler history and add SST_CPL, SST_ALPHA to POP history]
 ----
 001: No change (should be identical to C1D.beta12.oob)
+
+
+------
+
+All B compsets
+---
+ne30_g16
+B1D compset
+* Change env_run.xml to run for 1 year and turn on coupler history [monthly]
+* Change $CASE.run to request premium queue (keep 2 hour walltime)
+* SourceMod to gx1v6_tavg_contents to add SST_CPL to stream 2 and SST_ALPHA to 3
+
+
+B1D.beta12.sst
+----
+001: out of the box
+002: sst_use_obs = .true., files from POP1D-scripts
+003: same as 001, but f09_g16 (for looking at CAM output)
+004: same as 002, but f09_g16

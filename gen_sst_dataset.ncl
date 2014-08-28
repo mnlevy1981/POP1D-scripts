@@ -21,6 +21,7 @@ begin
   TEMP_tmp = fin->TEMP
   TEMP_tmp@long_name = "Sea Surface Temperature"
   TEMP_tmp@coordinates = "longitude latitude"
+  TEMP_tmp@_FillValue = 273.15
   lons = fgrid->grid_center_lon
   lats = fgrid->grid_center_lat
   if (lons@units.eq."radians") then
@@ -39,7 +40,7 @@ begin
 
   ; Variable setup
   VarNames = "SST"+ispan(1,12,1)
-  VarNames(0:8) = "SST"+ispan(1,9,1)
+  VarNames(0:8) = "SST0"+ispan(1,9,1)
 
   ; Output
   system("/bin/rm -f "+outfile)

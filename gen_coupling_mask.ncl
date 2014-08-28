@@ -32,10 +32,11 @@ begin
     fin = addfile(mask_file, "r")
     lons = fin->longitude
     lats = fin->latitude
-    alpha = where(fin->region_mask.eq.docn_region, 0., 1.)
+    alpha = where(fin->region_mask.eq.docn_region, 0.d, 1.d)
+    alpha@_FillValue = -1.d
     dimSizes = dimsizes(alpha)
     ; Transition region: average neighboring alpha values
-    alpha_tmp = new(dimSizes, "float")
+    alpha_tmp = new(dimSizes, "double")
     do k=1,3
       do i=0,dimSizes(0)-1
         do j=0,dimSizes(1)-1
@@ -47,11 +48,11 @@ begin
           end if
         end do
       end do
-      alpha = alpha_tmp
+      alpha = (/alpha_tmp/)
       ; Fix Panama (no overflow to Pacific!)
       if ((docn_region.eq.6).and.(.not.luse_g16)) then
-        alpha(61, 86) = 1.
-        alpha(62, 87) = 0.
+        alpha(61, 86) = 1.d
+        alpha(62, 87) = 0.d
       end if
     end do
   else
@@ -105,17 +106,17 @@ begin
     gridmask = fin->grid_imask
     delete(fin)
 
-    alpha = new(dimSizes(0)*dimSizes(1), "float")
+    alpha = new(dimSizes(0)*dimSizes(1), "double")
     alpha@long_name = "Weight used when averaging POP_SST and DOCN_SST"
     alpha@coordinates = "longitude latitude"
-    alpha@_FillValue = default_fillvalue("float")
-    alpha = 0.
+    alpha@_FillValue = -1.d
+    alpha = 0.d
     do i=0,num_blocks-1
       inbox = ind((lons.ge.west_edge(i)).and. \
                   (lons.le.east_edge(i)).and. \
                   (lats.ge.south_edge(i)).and. \
                   (lats.le.north_edge(i)))
-      alpha(inbox) = 1.
+      alpha(inbox) = 1.d
       delete(inbox)
       ; Transition Regions
       ; North
@@ -125,7 +126,7 @@ begin
                          (lons.ge.west_edge(i)).and.              \
                          (lons.le.east_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (lats(transition) - north_edge(i))/north_buf(i))
+          tmp = 1.d - (lats(transition) - north_edge(i))/north_buf(i)
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -138,7 +139,7 @@ begin
                          (lats.ge.south_edge(i)).and.             \
                          (lats.le.north_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (lons(transition) - east_edge(i))/east_buf(i))
+          tmp = 1.d - (lons(transition) - east_edge(i))/east_buf(i)
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -151,7 +152,7 @@ begin
                          (lons.ge.west_edge(i)).and.              \
                          (lons.le.east_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (south_edge(i) - lats(transition))/south_buf(i))
+          tmp = 1.d - (south_edge(i) - lats(transition))/south_buf(i)
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -164,7 +165,7 @@ begin
                          (lats.ge.south_edge(i)).and.             \
                          (lats.le.north_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (west_edge(i) - lons(transition))/west_buf(i))
+          tmp = 1.d - (west_edge(i) - lons(transition))/west_buf(i)
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -178,8 +179,8 @@ begin
                          (lats.le.north_edge(i)+north_buf(i)).and. \
                          (lats.gt.north_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (west_edge(i) - lons(transition))/west_buf(i)) * \
-                dble2flt(1.d - (lats(transition) - north_edge(i))/north_buf(i))
+          tmp = (1.d - (west_edge(i) - lons(transition))/west_buf(i)) * \
+                (1.d - (lats(transition) - north_edge(i))/north_buf(i))
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -192,8 +193,8 @@ begin
                          (lats.le.north_edge(i)+north_buf(i)).and. \
                          (lats.gt.north_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (lons(transition) - east_edge(i))/east_buf(i)) * \
-                dble2flt(1.d - (lats(transition) - north_edge(i))/north_buf(i))
+          tmp = (1.d - (lons(transition) - east_edge(i))/east_buf(i)) * \
+                (1.d - (lats(transition) - north_edge(i))/north_buf(i))
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -206,8 +207,8 @@ begin
                          (lats.ge.south_edge(i)-south_buf(i)).and. \
                          (lats.lt.south_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (lons(transition) - east_edge(i))/east_buf(i)) * \
-                dble2flt(1.d - (south_edge(i) - lats(transition))/south_buf(i))
+          tmp = (1.d - (lons(transition) - east_edge(i))/east_buf(i)) * \
+                (1.d - (south_edge(i) - lats(transition))/south_buf(i))
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -220,8 +221,8 @@ begin
                          (lats.ge.south_edge(i)-south_buf(i)).and. \
                          (lats.lt.south_edge(i)))
         if (.not.any(ismissing(transition))) then
-          tmp = dble2flt(1.d - (west_edge(i) - lons(transition))/west_buf(i)) * \
-                dble2flt(1.d - (south_edge(i) - lats(transition))/south_buf(i))
+          tmp = (1.d - (west_edge(i) - lons(transition))/west_buf(i)) * \
+                (1.d - (south_edge(i) - lats(transition))/south_buf(i))
           alpha(transition) = dim_max_n((/alpha(transition),tmp/), 0)
           delete(tmp)
         end if
@@ -230,7 +231,7 @@ begin
     end do
     alpha(ind(gridmask.eq.0)) = alpha@_FillValue
     ; Note: I had the mask backwards! Want 0 in Atlantic, 1 elsewhere!
-    alpha = 1. - alpha
+    alpha = 1.d - alpha
   end if
 
   ; Output
@@ -249,7 +250,7 @@ begin
 
   filevardef(fout, "latitude",  typeof(lats), (/"Y", "X"/))
   filevardef(fout, "longitude", typeof(lons), (/"Y", "X"/))
-  filevardef(fout, "alpha",     "float",      (/"Y", "X"/))
+  filevardef(fout, "alpha",     "double",     (/"Y", "X"/))
 
   filevarattdef(fout, "latitude",  lats)
   filevarattdef(fout, "longitude", lons)
