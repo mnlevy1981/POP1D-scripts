@@ -31,6 +31,14 @@ C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist; turn on
 ----
 001: Currently has SourceMod to force sst_alpha = 0 everywhere (testing interpolation)
 
+C1D.beta12.1D
+----
+001: lPOP1d = .true.,  lKPP1d = .false.
+002: lPOP1d = .false., lKPP1d = .true.
+003: lPOP1d = .true.,  lKPP1d = .true., lconst_Coriolis = .true.
+004: lPOP1d = .true.,  lKPP1d = .false., lconst_Coriolis = .true.
+005: lPOP1d = .true.,  lKPP1d = .false., PT and S forcing [10 year run]
+     If fail, try cutting time step
 
 ------
 
@@ -50,3 +58,4 @@ B1D.beta12.sst
 003: same as 001, but f09_g16 (for looking at CAM output)
 004: same as 002, but f09_g16
 005: same as 004, but with old forcing_tools
+005: same as 005, but using LBNL experiment checkout (beta10 + POP + scripts)
