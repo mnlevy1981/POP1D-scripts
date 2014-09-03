@@ -34,11 +34,14 @@ C1D.beta12.sst [All pt/s SourceMods plus new forcing_sst.F90 / namelist; turn on
 C1D.beta12.1D
 ----
 001: lPOP1d = .true.,  lKPP1d = .false.
+     (Blew up on Jan 17)
 002: lPOP1d = .false., lKPP1d = .true.
 003: lPOP1d = .true.,  lKPP1d = .true., lconst_Coriolis = .true.
 004: lPOP1d = .true.,  lKPP1d = .false., lconst_Coriolis = .true.
 005: lPOP1d = .true.,  lKPP1d = .false., PT and S forcing [10 year run]
-     If fail, try cutting time step
+     (First run blew up on Jan 13th, trying with hourly time step instead
+     of 2-hour time step)
+006: Same as 001, but with hourly timestep
 
 ------
 
