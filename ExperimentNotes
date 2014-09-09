@@ -42,6 +42,7 @@ C1D.beta12.1D
      (First run blew up on Jan 13th, trying with hourly time step instead
      of 2-hour time step)
 006: Same as 001, but with hourly timestep
+007: Same as 005, but outputting PT_INTERIOR_DATA [hopefully]
 
 ------
 
@@ -62,3 +63,19 @@ B1D.beta12.sst
 004: same as 002, but f09_g16
 005: same as 004, but with old forcing_tools
 005: same as 005, but using LBNL experiment checkout (beta10 + POP + scripts)
+
+------
+
+All G compsets
+---
+T62_g37
+G1D compset
+* Change env_run.xml to run for 1 year
+* Change $CASE.run to request 30 minutes of premium queue
+
+G1D.beta12.1D
+----
+001: lPOP1d = .true.
+     crashed in cice dynamics after 14 days, rerunning w/ kdyn = 0
+     [ kdyn = 0 doesn't crash, but SSTs go to missing values after 13 days]
+002: lPOP1d = .true., dt_count = 24
