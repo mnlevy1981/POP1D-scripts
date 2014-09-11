@@ -44,6 +44,11 @@ C1D.beta12.1D
 006: Same as 001, but with hourly timestep
 007: Same as 005, but outputting PT_INTERIOR_DATA [hopefully]
 
+C1D.beta12.noBSF
+----
+001: First attempt at removing BSF from monthly history file (g37)
+002: First attempt at removing BSF from monthly history file (g16)
+
 ------
 
 All B compsets
