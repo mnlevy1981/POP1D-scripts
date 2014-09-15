@@ -51,6 +51,43 @@ C1D.beta12.noBSF
 
 ------
 
+C vs C1D vs C1D + interior forcing
+---
+Issue with SHF_QSW (shortwave heat flux) when interior forcing is turned on
+* premium queue, 30 min walltime
+* 1 month run
+
+C.beta12.SHF_QSW: oob
+C1D.beta12.SHF_QSW: lconst_coriolis = .true.
+C1D+pt_int.beta12.SHF_QSW: PT forcing
+C1D+s_int.beta12.SHF_QSW: S forcing
+C1D+pt_s_int.beta12.SHF_QSW: S forcing
+..._d => DEBUG = TRUE
+
+C1D.beta12.s_int
+---
+Issue with SHF_QSW (shortwave heat flux) when interior forcing is turned on
+* premium queue, 30 min walltime
+* 1 month run
+* Copy user_nl_pop2 from C1D+s_int.beta12.SHF_QSW
+
+001: SourceMods to comment out set_s_interior call
+
+
+C1D.beta12.pt+s_int
+---
+Issue with SHF_QSW (shortwave heat flux) when interior forcing is turned on
+* premium queue, 30 min walltime
+* 5 day run
+* Move SHF_QSW to nstep output
+* Copy user_nl_pop2 from C1D+pt_s_int.beta12.SHF_QSW
+
+001: OOB except for changes above
+002: OOB including no user_nl_pop2 ("control run")
+
+
+------
+
 All B compsets
 ---
 ne30_g16
