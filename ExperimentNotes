@@ -78,13 +78,41 @@ C1D.beta12.pt+s_int
 ---
 Issue with SHF_QSW (shortwave heat flux) when interior forcing is turned on
 * premium queue, 30 min walltime
-* 5 day run
+* 1 month + coupler history every step
 * Move SHF_QSW to nstep output
 * Copy user_nl_pop2 from C1D+pt_s_int.beta12.SHF_QSW
 
 001: OOB except for changes above
 002: OOB including no user_nl_pop2 ("control run")
+003: Same as 001, but with flat_bottom = .false.
 
+C1D.LBNL.test_new_namelist
+---
+Introduce pop1d_nml; set some defaults based on lidentical_columns
+* premium queue, 30 min walltime
+* run for 1 month
+
+001: 1D out of the box (should have bigger dt_count)
+002: set lidentical_columns = .true. [should toggle lconst_Coriolis as well!]
+003: add pt restoring
+004: add s restoring
+005: add pt & s restoring
+
+C1D.LBNL2
+---
+Using the rc02 LBNL tag, better datasets (no points masked out of restoring
+dataset but actually part of the gx3v7 grid -- i.e. Tonga Trench), and setting
+salinity normalization coefficient to .001
+* premium queue, 30 min walltime
+* run for 1 month
+
+001: 1D out of the box (should have bigger dt_count)
+002: add pt restoring
+003: add s restoring
+004: add pt & s restoring
+005: same as 002, but with dt_count=12 [original bigger time step)
+006: same as 002, but without the "k>1" line in restoring
+007: same as 005, but without the "k>1" line in restoring
 
 ------
 
