@@ -2,5 +2,7 @@ param_sets
 masks
 region_masks
 datasets
+datasets.old
+KMT
 *.nc
 *.swp
