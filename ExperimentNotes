@@ -110,9 +110,10 @@ salinity normalization coefficient to .001
 002: add pt restoring
 003: add s restoring
 004: add pt & s restoring
-005: same as 002, but with dt_count=12 [original bigger time step)
+005: same as 002, but with dt_count=12 [original bigger time step]
 006: same as 002, but without the "k>1" line in restoring
-007: same as 005, but without the "k>1" line in restoring
+007: same as 004, but without the "k>1" line in restoring
+008: same as 007, but with dt_count=12
 
 ------
 
